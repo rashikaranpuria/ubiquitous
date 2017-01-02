@@ -10,4 +10,7 @@
     <dimen name="digital_y_offset">55dp</dimen>
     <dimen name="digital_y1_offset">20dp</dimen>
     <dimen name="digital_y2_offset">30dp</dimen>
+
+    <dimen name="high_temp_text_size">30dp</dimen>
+    <dimen name="low_temp_text_size">28dp</dimen>
 </resources>
