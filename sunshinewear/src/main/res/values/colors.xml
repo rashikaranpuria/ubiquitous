@@ -2,6 +2,7 @@
 <resources>
     <color name="background">#000000</color>
     <color name="digital_text">#ffffff</color>
+    <color name="light_white">#d3ffffff</color>
     <color name="colorPrimary">#03A9F4</color>
     <color name="colorPrimaryDark">#0288D1</color>
     <color name="colorAccent">#FFD740</color>
