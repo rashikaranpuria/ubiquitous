@@ -32,11 +32,23 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
@@ -51,7 +63,7 @@ import java.util.concurrent.TimeUnit;
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
 public class MyWatchFace extends CanvasWatchFaceService {
-    private static final String LOG_TAG=MyWatchFace.class.getSimpleName();
+    private static final String LOG_TAG = MyWatchFace.class.getSimpleName();
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
@@ -91,7 +103,11 @@ public class MyWatchFace extends CanvasWatchFaceService {
         }
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine {
+    private class Engine extends CanvasWatchFaceService.Engine implements
+            DataApi.DataListener,
+            GoogleApiClient.ConnectionCallbacks,
+            GoogleApiClient.OnConnectionFailedListener {
+
         final Handler mUpdateTimeHandler = new EngineHandler(this);
         boolean mRegisteredTimeZoneReceiver = false;
         Paint mBackgroundPaint;
@@ -101,6 +117,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         Paint mHighTempPaint;
         boolean mAmbient;
         Calendar mCalendar;
+
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -108,6 +125,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 invalidate();
             }
         };
+
         float mXOffset;
         float mYOffset;
         float mY1Offset;
@@ -115,6 +133,17 @@ public class MyWatchFace extends CanvasWatchFaceService {
         float mHighTextSize;
         float dp10;
         float dp5;
+
+        private GoogleApiClient mWearClient;
+
+        public static final String WATCH_WEATHER_PATH = "/weather_watch";
+        public static final String HIGH_TEMP = "HIGH_TEMP";
+        public static final String LOW_TEMP = "LOW_TEMP";
+        public static final String WEATHER_ID = "WEATHER_ID";
+
+        double high_temp;
+        double low_temp;
+        int weather_id;
 
         private int weatherResourceId = -1;
 
@@ -162,11 +191,18 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             mCalendar = Calendar.getInstance();
 
+            mWearClient = new GoogleApiClient.Builder(MyWatchFace.this)
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+
         }
 
         @Override
         public void onDestroy() {
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
+            mWearClient.disconnect();
             super.onDestroy();
         }
 
@@ -187,6 +223,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
                 // Update time zone in case it changed while we weren't visible.
                 mCalendar.setTimeZone(TimeZone.getDefault());
+                mWearClient.connect();
                 invalidate();
             } else {
                 unregisterReceiver();
@@ -324,7 +361,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         private void drawWeatherOnCanvas(Canvas canvas){
 
-            weatherResourceId = getIconResourceForWeatherCondition(800);
+            weatherResourceId = getIconResourceForWeatherCondition(weather_id);
             if(weatherResourceId != -1){
                 Log.d(LOG_TAG, String.valueOf(weatherResourceId));
                 Drawable dr = getResources().getDrawable(R.drawable.ic_clear, null);
@@ -337,10 +374,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 );
                 canvas.drawBitmap(weatherIconBitMapScaled, mXOffset, mYOffset + 2*mY1Offset + dp10, null);
 
-                String highTemp = String.format(getResources().getString(R.string.format_temperature), 32f);
+                String highTemp = String.format(getResources().getString(R.string.format_temperature), high_temp);
                 canvas.drawText(highTemp, mXOffset + 3*dp10, mYOffset + 2*mY1Offset + 2*dp10 + dp5, mHighTempPaint);
 
-                String lowTemp = String.format(getResources().getString(R.string.format_temperature), 12f);
+                String lowTemp = String.format(getResources().getString(R.string.format_temperature), low_temp);
                 canvas.drawText(lowTemp, mXOffset + 8*dp10, mYOffset + 2*mY1Offset + 2*dp10 + dp5, mLowTempPaint);
             }
         }
@@ -414,6 +451,42 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 return R.drawable.ic_cloudy;
             }
             return -1;
+        }
+
+        @Override
+        public void onConnected(@Nullable Bundle bundle) {
+            Wearable.DataApi.addListener(mWearClient, this);
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+
+        }
+
+        @Override
+        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        }
+
+        @Override
+        public void onDataChanged(DataEventBuffer dataEvents) {
+            Log.d(LOG_TAG, " in data changed");
+            for (DataEvent event : dataEvents) {
+                if (event.getType() == DataEvent.TYPE_CHANGED) {
+                    // DataItem changed
+                    DataItem item = event.getDataItem();
+                    if (item.getUri().getPath().compareTo(WATCH_WEATHER_PATH) == 0) {
+                        Log.d(LOG_TAG, "data changed in if to set");
+                        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                        weather_id = dataMap.getInt(WEATHER_ID);
+                        high_temp = dataMap.getDouble(HIGH_TEMP);
+                        low_temp = dataMap.getDouble(LOW_TEMP);
+                    }
+                } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                    // DataItem deleted
+                }
+            }
+            invalidate();
         }
     }
 }

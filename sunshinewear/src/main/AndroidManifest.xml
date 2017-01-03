@@ -21,8 +21,8 @@
 
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
-
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
             </intent-filter>
         </service>
 
