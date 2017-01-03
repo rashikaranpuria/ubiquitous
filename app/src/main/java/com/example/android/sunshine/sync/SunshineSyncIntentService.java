@@ -28,6 +28,9 @@ import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -116,7 +119,22 @@ public class SunshineSyncIntentService extends IntentService implements GoogleAp
         putDataMapRequest.getDataMap().putDouble(HIGH_TEMP, high);
         putDataMapRequest.getDataMap().putDouble(LOW_TEMP, low);
         PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest().setUrgent();
-        Wearable.DataApi.putDataItem(mWearClient, putDataRequest);
+        PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem(mWearClient, putDataRequest);
+
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
+                if (dataItemResult.getStatus().isSuccess()) {
+                    Log.d(LOG_TAG, "Data item set: " + dataItemResult.getDataItem().getUri());
+
+                } else {
+                    // There was an error sending the data
+                    Log.d(LOG_TAG, "There was an error in sending data to watch");
+
+                }
+            }
+
+        });
         Log.d(LOG_TAG, "in update weather task");
     }
 

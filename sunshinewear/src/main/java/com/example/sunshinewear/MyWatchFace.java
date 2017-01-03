@@ -196,13 +196,13 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
-
+            mWearClient.connect();
         }
 
         @Override
         public void onDestroy() {
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
-            mWearClient.disconnect();
+//            mWearClient.disconnect();
             super.onDestroy();
         }
 
@@ -223,7 +223,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
                 // Update time zone in case it changed while we weren't visible.
                 mCalendar.setTimeZone(TimeZone.getDefault());
-                mWearClient.connect();
+//                mWearClient.connect();
                 invalidate();
             } else {
                 unregisterReceiver();
@@ -456,16 +456,17 @@ public class MyWatchFace extends CanvasWatchFaceService {
         @Override
         public void onConnected(@Nullable Bundle bundle) {
             Wearable.DataApi.addListener(mWearClient, this);
+            Log.d(LOG_TAG, " connected to google api client");
         }
 
         @Override
         public void onConnectionSuspended(int i) {
-
+            Log.d(LOG_TAG, " connection suspended to google api client");
         }
 
         @Override
         public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+            Log.d(LOG_TAG, " failed connection to google api client " + connectionResult.getErrorMessage());
         }
 
         @Override
