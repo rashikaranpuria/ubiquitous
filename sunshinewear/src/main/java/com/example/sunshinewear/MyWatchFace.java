@@ -196,7 +196,6 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
-            mWearClient.connect();
         }
 
         @Override
@@ -219,6 +218,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
 
             if (visible) {
+                mWearClient.connect();
                 registerReceiver();
 
                 // Update time zone in case it changed while we weren't visible.
