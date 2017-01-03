@@ -44,7 +44,7 @@ public class SunshineSyncIntentService extends IntentService implements GoogleAp
     private GoogleApiClient mWearClient;
     public final String LOG_TAG = SunshineSyncIntentService.class.getSimpleName();
 
-    public static final String WATCH_WEATHER_PATH = "/weather_watch";
+    public static final String WEATHER_PATH = "/weather_watch";
     public static final String HIGH_TEMP = "HIGH_TEMP";
     public static final String LOW_TEMP = "LOW_TEMP";
     public static final String WEATHER_ID = "WEATHER_ID";
@@ -107,17 +107,16 @@ public class SunshineSyncIntentService extends IntentService implements GoogleAp
             weather_id = cursor.getInt(INDEX_WEATHER_CONDITION_ID);
             high_temp = cursor.getDouble(INDEX_WEATHER_MAX_TEMP);
             low_temp = cursor.getDouble(INDEX_WEATHER_MIN_TEMP);
-            Log.d(LOG_TAG, "google api client cursor fetched weather");
             updateWearWeather(weather_id, high_temp, low_temp);
         }
 
     }
 
-    private void updateWearWeather(int weather_id, double high, double low){
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WATCH_WEATHER_PATH).setUrgent();
+    private void updateWearWeather(int weather_id, double high_temp, double low_temp){
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WEATHER_PATH).setUrgent();
         putDataMapRequest.getDataMap().putInt(WEATHER_ID, weather_id);
-        putDataMapRequest.getDataMap().putDouble(HIGH_TEMP, high);
-        putDataMapRequest.getDataMap().putDouble(LOW_TEMP, low);
+        putDataMapRequest.getDataMap().putDouble(HIGH_TEMP, high_temp);
+        putDataMapRequest.getDataMap().putDouble(LOW_TEMP, low_temp);
         PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest().setUrgent();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem(mWearClient, putDataRequest);
 
@@ -128,14 +127,11 @@ public class SunshineSyncIntentService extends IntentService implements GoogleAp
                     Log.d(LOG_TAG, "Data item set: " + dataItemResult.getDataItem().getUri());
 
                 } else {
-                    // There was an error sending the data
-                    Log.d(LOG_TAG, "There was an error in sending data to watch");
-
+                    Log.d(LOG_TAG, "Error in sending data to watch");
                 }
             }
 
         });
-        Log.d(LOG_TAG, "in update weather task");
     }
 
     @Override

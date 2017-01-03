@@ -113,6 +113,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         Paint mBackgroundPaint;
         Paint mTextPaint;
         Paint dateTextPaint;
+        Paint lineTextPaint;
         Paint mLowTempPaint;
         Paint mHighTempPaint;
         boolean mAmbient;
@@ -131,12 +132,12 @@ public class MyWatchFace extends CanvasWatchFaceService {
         float mY1Offset;
         float mLowTextSize;
         float mHighTextSize;
-        float dp10;
-        float dp5;
+        float dp_10;
+        float dp_5;
 
         private GoogleApiClient mWearClient;
 
-        public static final String WATCH_WEATHER_PATH = "/weather_watch";
+        public static final String WEATHER_PATH = "/weather_watch";
         public static final String HIGH_TEMP = "HIGH_TEMP";
         public static final String LOW_TEMP = "LOW_TEMP";
         public static final String WEATHER_ID = "WEATHER_ID";
@@ -171,8 +172,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mLowTextSize = resources.getDimension(R.dimen.low_temp_text_size);
             mHighTextSize = resources.getDimension(R.dimen.high_temp_text_size);
 
-            dp10 = resources.getDimension(R.dimen.dp10);
-            dp5 = resources.getDimension(R.dimen.dp5);
+            dp_10 = resources.getDimension(R.dimen.dp_10);
+            dp_5 = resources.getDimension(R.dimen.dp_5);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(resources.getColor(R.color.colorPrimary));
@@ -182,6 +183,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             dateTextPaint = new Paint();
             dateTextPaint = createTextPaint(resources.getColor(R.color.light_white));
+
+            lineTextPaint = new Paint();
+            lineTextPaint = createTextPaint(resources.getColor(R.color.light_white));
 
             mLowTempPaint = new Paint();
             mLowTempPaint = createTextPaint(resources.getColor(R.color.light_white));
@@ -264,9 +268,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
             float textSizeSmall = resources.getDimension(R.dimen.digital_text_size_small);
-
+            float textSizeVerySmall = resources.getDimension(R.dimen.digital_text_very_size_small);
             mTextPaint.setTextSize(textSize);
             dateTextPaint.setTextSize(textSizeSmall);
+            lineTextPaint.setTextSize(textSizeVerySmall);
             mLowTempPaint.setTextSize(mLowTextSize);
             mHighTempPaint.setTextSize(mHighTextSize);
         }
@@ -291,6 +296,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 if (mLowBitAmbient) {
                     mTextPaint.setAntiAlias(!inAmbientMode);
                     dateTextPaint.setAntiAlias(!inAmbientMode);
+                    lineTextPaint.setAntiAlias(!inAmbientMode);
                     mLowTempPaint.setAntiAlias(!inAmbientMode);
                     mHighTempPaint.setAntiAlias(!inAmbientMode);
                 }
@@ -347,9 +353,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             String text2 = String.format("%s", dateFormat.format(date).toUpperCase());
             canvas.drawText(text2, mXOffset, mYOffset + mY1Offset, dateTextPaint);
-            canvas.drawText("___", mXOffset, mYOffset + mY1Offset + mY1Offset, dateTextPaint);
+            canvas.drawText("_________", mXOffset, mYOffset + mY1Offset + mY1Offset, lineTextPaint);
 
-            Log.d(LOG_TAG, "draw on canvas weather");
             //draw weather details on canvas
             drawWeatherOnCanvas(canvas);
 
@@ -361,7 +366,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         private void drawWeatherOnCanvas(Canvas canvas){
 
-            weatherResourceId = getIconResourceForWeatherCondition(weather_id);
+//            weatherResourceId = getIconForWeatherCondition(weather_id);
+            weatherResourceId = getIconForWeatherCondition(800);
             if(weatherResourceId != -1){
                 Log.d(LOG_TAG, String.valueOf(weatherResourceId));
                 Drawable dr = getResources().getDrawable(R.drawable.ic_clear, null);
@@ -372,13 +378,13 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         weatherIconBitmap, (int) (weatherIconBitmap.getWidth()*scale),
                         (int) (weatherIconBitmap.getHeight()*scale), true
                 );
-                canvas.drawBitmap(weatherIconBitMapScaled, mXOffset, mYOffset + 2*mY1Offset + dp10, null);
+                canvas.drawBitmap(weatherIconBitMapScaled, mXOffset, mYOffset + 2*mY1Offset + dp_10, null);
 
                 String highTemp = String.format(getResources().getString(R.string.format_temperature), high_temp);
-                canvas.drawText(highTemp, mXOffset + 3*dp10, mYOffset + 2*mY1Offset + 2*dp10 + dp5, mHighTempPaint);
+                canvas.drawText(highTemp, mXOffset + 3*dp_10, mYOffset + 2*mY1Offset + 2*dp_10 + dp_5, mHighTempPaint);
 
                 String lowTemp = String.format(getResources().getString(R.string.format_temperature), low_temp);
-                canvas.drawText(lowTemp, mXOffset + 8*dp10, mYOffset + 2*mY1Offset + 2*dp10 + dp5, mLowTempPaint);
+                canvas.drawText(lowTemp, mXOffset + 8*dp_10, mYOffset + 2*mY1Offset + 2*dp_10 + dp_5, mLowTempPaint);
             }
         }
 
@@ -414,7 +420,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             }
         }
 
-        public int getIconResourceForWeatherCondition(int weatherId) {
+        public int getIconForWeatherCondition(int weatherId) {
             // Based on weather code data found at:
             // http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
             if (weatherId >= 200 && weatherId <= 232) {
@@ -476,8 +482,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 if (event.getType() == DataEvent.TYPE_CHANGED) {
                     // DataItem changed
                     DataItem item = event.getDataItem();
-                    if (item.getUri().getPath().compareTo(WATCH_WEATHER_PATH) == 0) {
-                        Log.d(LOG_TAG, "data changed in if to set");
+                    if (item.getUri().getPath().compareTo(WEATHER_PATH) == 0) {
                         DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                         weather_id = dataMap.getInt(WEATHER_ID);
                         high_temp = dataMap.getDouble(HIGH_TEMP);
