@@ -11,6 +11,9 @@
     <dimen name="digital_y1_offset">20dp</dimen>
     <dimen name="digital_y2_offset">30dp</dimen>
 
-    <dimen name="high_temp_text_size">30dp</dimen>
-    <dimen name="low_temp_text_size">28dp</dimen>
+    <dimen name="high_temp_text_size">20dp</dimen>
+    <dimen name="low_temp_text_size">18dp</dimen>
+
+    <dimen name="dp10">10dp</dimen>
+    <dimen name="dp5">5dp</dimen>
 </resources>

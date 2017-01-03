@@ -37,7 +37,6 @@ import android.support.wearable.watchface.WatchFaceStyle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
-import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
@@ -114,6 +113,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
         float mY1Offset;
         float mLowTextSize;
         float mHighTextSize;
+        float dp10;
+        float dp5;
 
         private int weatherResourceId = -1;
 
@@ -141,6 +142,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mLowTextSize = resources.getDimension(R.dimen.low_temp_text_size);
             mHighTextSize = resources.getDimension(R.dimen.high_temp_text_size);
 
+            dp10 = resources.getDimension(R.dimen.dp10);
+            dp5 = resources.getDimension(R.dimen.dp5);
+
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(resources.getColor(R.color.colorPrimary));
 
@@ -151,10 +155,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
             dateTextPaint = createTextPaint(resources.getColor(R.color.light_white));
 
             mLowTempPaint = new Paint();
-            mLowTempPaint = createTextPaint(resources.getColor(R.color.white));
+            mLowTempPaint = createTextPaint(resources.getColor(R.color.light_white));
 
             mHighTempPaint = new Paint();
-            mHighTempPaint = createTextPaint(resources.getColor(R.color.light_white));
+            mHighTempPaint = createTextPaint(resources.getColor(R.color.white));
 
             mCalendar = Calendar.getInstance();
 
@@ -277,8 +281,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 case TAP_TYPE_TAP:
                     // The user has completed the tap gesture.
                     // TODO: Add code to handle the tap gesture.
-                    Toast.makeText(getApplicationContext(), R.string.message, Toast.LENGTH_SHORT)
-                            .show();
+//                    Toast.makeText(getApplicationContext(), R.string.message, Toast.LENGTH_SHORT)
+//                            .show();
                     break;
             }
             invalidate();
@@ -325,14 +329,19 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 Log.d(LOG_TAG, String.valueOf(weatherResourceId));
                 Drawable dr = getResources().getDrawable(R.drawable.ic_clear, null);
                 weatherIconBitmap = ((BitmapDrawable)dr).getBitmap();
-//                weatherIconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_clear);
-//                float scaleFactor = getResources().getDimension(R.dimen.digital_text_size);
-//                float scale = scaleFactor/(float) weatherIconBitmap.getHeight();
-//                Bitmap weatherIconBitMapScaled = Bitmap.createScaledBitmap(
-//                        weatherIconBitmap, (int) (weatherIconBitmap.getWidth()*scale),
-//                        (int) (weatherIconBitmap.getHeight()*scale), true
-//                );
-                canvas.drawBitmap(weatherIconBitmap, mXOffset, mYOffset, null);
+                float scaleFactor = getResources().getDimension(R.dimen.high_temp_text_size);
+                float scale = scaleFactor/(float) weatherIconBitmap.getHeight();
+                Bitmap weatherIconBitMapScaled = Bitmap.createScaledBitmap(
+                        weatherIconBitmap, (int) (weatherIconBitmap.getWidth()*scale),
+                        (int) (weatherIconBitmap.getHeight()*scale), true
+                );
+                canvas.drawBitmap(weatherIconBitMapScaled, mXOffset, mYOffset + 2*mY1Offset + dp10, null);
+
+                String highTemp = String.format(getResources().getString(R.string.format_temperature), 32f);
+                canvas.drawText(highTemp, mXOffset + 3*dp10, mYOffset + 2*mY1Offset + 2*dp10 + dp5, mHighTempPaint);
+
+                String lowTemp = String.format(getResources().getString(R.string.format_temperature), 12f);
+                canvas.drawText(lowTemp, mXOffset + 8*dp10, mYOffset + 2*mY1Offset + 2*dp10 + dp5, mLowTempPaint);
             }
         }
 
