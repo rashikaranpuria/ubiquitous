@@ -22,12 +22,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -51,6 +52,7 @@ import java.util.concurrent.TimeUnit;
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
 public class MyWatchFace extends CanvasWatchFaceService {
+    private static final String LOG_TAG=MyWatchFace.class.getSimpleName();
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
@@ -115,6 +117,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         private int weatherResourceId = -1;
 
+        Bitmap weatherIconBitmap;
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
@@ -305,8 +308,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
             canvas.drawText(text2, mXOffset, mYOffset + mY1Offset, dateTextPaint);
             canvas.drawText("___", mXOffset, mYOffset + mY1Offset + mY1Offset, dateTextPaint);
 
+            Log.d(LOG_TAG, "draw on canvas weather");
             //draw weather details on canvas
             drawWeatherOnCanvas(canvas);
+
         }
 
         /*
@@ -317,8 +322,16 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             weatherResourceId = getIconResourceForWeatherCondition(800);
             if(weatherResourceId != -1){
-                Log.d("nobitmap", String.valueOf(weatherResourceId));
-                Bitmap weatherIconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_clear);
+                Log.d(LOG_TAG, String.valueOf(weatherResourceId));
+                Drawable dr = getResources().getDrawable(R.drawable.ic_clear, null);
+                weatherIconBitmap = ((BitmapDrawable)dr).getBitmap();
+//                weatherIconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_clear);
+//                float scaleFactor = getResources().getDimension(R.dimen.digital_text_size);
+//                float scale = scaleFactor/(float) weatherIconBitmap.getHeight();
+//                Bitmap weatherIconBitMapScaled = Bitmap.createScaledBitmap(
+//                        weatherIconBitmap, (int) (weatherIconBitmap.getWidth()*scale),
+//                        (int) (weatherIconBitmap.getHeight()*scale), true
+//                );
                 canvas.drawBitmap(weatherIconBitmap, mXOffset, mYOffset, null);
             }
         }
