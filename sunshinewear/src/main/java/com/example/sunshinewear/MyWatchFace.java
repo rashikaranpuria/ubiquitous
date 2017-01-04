@@ -366,10 +366,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         private void drawWeatherOnCanvas(Canvas canvas){
 
-//            weatherResourceId = getIconForWeatherCondition(weather_id);
-            weatherResourceId = getIconForWeatherCondition(800);
+            weatherResourceId = getIconForWeatherCondition(weather_id);
             if(weatherResourceId != -1){
-                Log.d(LOG_TAG, String.valueOf(weatherResourceId));
                 Drawable dr = getResources().getDrawable(R.drawable.ic_clear, null);
                 weatherIconBitmap = ((BitmapDrawable)dr).getBitmap();
                 float scaleFactor = getResources().getDimension(R.dimen.high_temp_text_size);
