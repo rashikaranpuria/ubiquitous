@@ -335,6 +335,7 @@ public final class SunshineWeatherUtils {
         } else if (weatherId >= 300 && weatherId <= 321) {
             return R.drawable.ic_light_rain;
         } else if (weatherId >= 500 && weatherId <= 504) {
+            Log.d(LOG_TAG, "should be returning ic rain");
             return R.drawable.ic_rain;
         } else if (weatherId == 511) {
             return R.drawable.ic_snow;
@@ -347,21 +348,14 @@ public final class SunshineWeatherUtils {
         } else if (weatherId == 761 || weatherId == 771 || weatherId == 781) {
             return R.drawable.ic_storm;
         } else if (weatherId == 800) {
+            Log.d(LOG_TAG, "should be here ? weather id" + weatherId);
             return R.drawable.ic_clear;
         } else if (weatherId == 801) {
             return R.drawable.ic_light_clouds;
         } else if (weatherId >= 802 && weatherId <= 804) {
             return R.drawable.ic_cloudy;
-        } else if (weatherId >= 900 && weatherId <= 906) {
-            return R.drawable.ic_storm;
-        } else if (weatherId >= 958 && weatherId <= 962) {
-            return R.drawable.ic_storm;
-        } else if (weatherId >= 951 && weatherId <= 957) {
-            return R.drawable.ic_clear;
         }
-
-        Log.e(LOG_TAG, "Unknown Weather: " + weatherId);
-        return R.drawable.ic_storm;
+        return -1;
     }
 
     /**

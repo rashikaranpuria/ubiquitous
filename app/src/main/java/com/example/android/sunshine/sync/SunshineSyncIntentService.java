@@ -115,6 +115,7 @@ public class SunshineSyncIntentService extends IntentService implements GoogleAp
     private void updateWearWeather(int weather_id, double high_temp, double low_temp){
         PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WEATHER_PATH).setUrgent();
         putDataMapRequest.getDataMap().putInt(WEATHER_ID, weather_id);
+        Log.d(LOG_TAG, "value of weather put : "+weather_id);
         putDataMapRequest.getDataMap().putDouble(HIGH_TEMP, high_temp);
         putDataMapRequest.getDataMap().putDouble(LOW_TEMP, low_temp);
         PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest().setUrgent();
