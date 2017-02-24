@@ -1,4 +1,4 @@
-# Stock Hawk : Project 3
+# Go Ubiquitous : Project 6
 
 #### Watch face for Udacity's Sunshine app. Shows time and weather details.
 
@@ -16,4 +16,4 @@
 * play-services-wearable
 
 ###License
-This code is Copyright (c) 2016 Rashi Karanpuria. It is free software, and may be redistributed under the terms specified in the [License](https://github.com/rashikaranpuria/StockHawk/blob/master/License.md) file.
+This code is Copyright (c) 2016 Rashi Karanpuria. It is free software, and may be redistributed under the terms specified in the [License](https://github.com/rashikaranpuria/ubiquitous/blob/master/License.md) file.
