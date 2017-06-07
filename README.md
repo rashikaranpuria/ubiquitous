@@ -7,13 +7,13 @@
 <img src="https://github.com/rashikaranpuria/ubiquitous/blob/master/screenshots/unnamed%20(1).png" alt="movie app screenshot 1"/>
 <img src="https://github.com/rashikaranpuria/ubiquitous/blob/master/screenshots/unnamed.png" alt="movie app screenshot 1"/>
 
-###Installation
+### Installation
 1. Clone or download zip file of this repository
 2. Open project in Android-studio and run.
 3. Select watch face from connected android phone or wear device itself.
 
-###Libraries
+### Libraries
 * play-services-wearable
 
-###License
+### License
 This code is Copyright (c) 2016 Rashi Karanpuria. It is free software, and may be redistributed under the terms specified in the [License](https://github.com/rashikaranpuria/ubiquitous/blob/master/License.md) file.
